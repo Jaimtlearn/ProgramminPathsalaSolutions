@@ -1,0 +1,39 @@
+function objectAssign(target, ...sources) {
+  if (target == null) {
+    throw new TypeError('Cannot convert undefined or null to object');
+  }
+
+  const to = Object(target);
+
+  for (let i = 0; i < sources.length; i++) {
+    const nextSource = sources[i];
+
+    if (nextSource != null) {
+      try {
+        const keys = Object.keys(nextSource);
+
+        keys.forEach(key => {
+          const desc = Object.getOwnPropertyDescriptor(nextSource, key);
+
+          if (desc && desc.enumerable) {
+            to[key] = nextSource[key];
+          }
+        });
+
+        const symbols = Object.getOwnPropertySymbols(nextSource);
+
+        symbols.forEach(symbol => {
+          const desc = Object.getOwnPropertyDescriptor(nextSource, symbol);
+
+          if (desc && desc.enumerable) {
+            to[symbol] = nextSource[symbol];
+          }
+        });
+      } catch (error) {
+        throw new Error('An exception occurred during property assignment');
+      }
+    }
+  }
+
+  return to;
+}

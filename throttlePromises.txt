@@ -1,0 +1,35 @@
+function throttlePromises(funcs, maxConcurrent) {
+  return new Promise((resolve, reject) => {
+    const results = [];
+    let currentIndex = 0;
+    let runningPromises = 0;
+
+    const executeNext = async () => {
+      if (currentIndex >= funcs.length && runningPromises === 0) {
+        resolve(results);
+        return;
+      }
+
+      if (currentIndex < funcs.length) {
+        const func = funcs[currentIndex];
+        currentIndex++;
+        runningPromises++;
+
+        try {
+          const result = await func();
+          results.push(result);
+        } catch (error) {
+          reject(error);
+          return;
+        } finally {
+          runningPromises--;
+          executeNext();
+        }
+      }
+    };
+
+    for (let i = 0; i < maxConcurrent; i++) {
+      executeNext();
+    }
+  });
+}
